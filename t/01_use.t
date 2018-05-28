@@ -2,6 +2,7 @@ use Test2::V0 -no_srand => 1;
 sub require_ok ($);
 
 require_ok 'Test2::Tools::HTTP::UA::HTTPAnyUA';
+require_ok 'Test2::Tools::HTTP::UA::FauxHTTPTiny';
 
 done_testing;
 
