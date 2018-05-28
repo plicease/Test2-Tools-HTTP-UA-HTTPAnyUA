@@ -115,4 +115,23 @@ subtest 'cookie_jar' => sub {
 
 };
 
+subtest 'max_redirect' => sub {
+
+  my $http = HTTP::Tiny->new;
+  
+  is($http->max_redirect, 5);
+  is($http->ua->max_redirect, 5);
+  
+  $http->max_redirect(10);
+
+  is($http->max_redirect, 10);
+  is($http->ua->max_redirect, 10);
+
+  $http = HTTP::Tiny->new( max_redirect => 8 );
+
+  is($http->max_redirect, 8);
+  is($http->ua->max_redirect, 8);
+
+};
+
 done_testing

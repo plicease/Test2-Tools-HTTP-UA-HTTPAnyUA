@@ -32,7 +32,6 @@ sub import
           default_headers
           local_address
           keep_alive
-          max_redirect
           max_size
           http_proxy
           https_proxy
@@ -65,6 +64,11 @@ sub import
             $self->ua->cookie_jar($cookie_jar);
           }
           
+          if(my $max_redirect = delete $attr{max_redirect} || 5)
+          {
+            $self->ua->max_redirect($max_redirect);
+          }
+          
           Carp::carp "attribute: $_ is not supported" for sort keys %attr;
           
           $self;
@@ -72,9 +76,7 @@ sub import
         
         *agent = sub {
           my($self, $new) = @_;
-          
           $self->ua->agent($new) if defined $new;
-          
           $self->ua->agent;
         };
         
@@ -92,6 +94,12 @@ sub import
             }
           }
           $self->ua->cookie_jar;
+        };
+        
+        *max_redirect = sub {
+          my($self, $new) = @_;
+          $self->ua->max_redirect($new) if defined $new;
+          $self->ua->max_redirect;
         };
         
         foreach my $name (@missing)

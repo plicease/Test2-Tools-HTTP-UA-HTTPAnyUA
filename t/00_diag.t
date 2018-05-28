@@ -10,8 +10,15 @@ my %modules;
 my $post_diag;
 
 $modules{$_} = $_ for qw(
+  Carp
   ExtUtils::MakeMaker
+  HTTP::AnyUA
+  HTTP::Cookies
+  LWP::UserAgent
+  Test2::Tools::HTTP
+  Test2::Tools::HTTP::UA
   Test2::V0
+  parent
 );
 
 
