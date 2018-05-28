@@ -28,6 +28,21 @@ sub import
         package
           HTTP::Tiny;
 
+        my @missing = qw(
+          default_headers
+          local_address
+          keep_alive
+          max_redirect
+          max_size
+          http_proxy
+          https_proxy
+          proxy
+          no_proxy
+          timeout
+          verify_SSL
+          SSL_options
+        );
+
         *new = sub {
           my($class, %attr) = @_;
 
@@ -65,7 +80,6 @@ sub import
         
         *cookie_jar = sub {
           my($self, $new) = @_;
-          $DB::single = 1;
           if(defined $new)
           {
             if(ref($new) && ref($new) ne 'HASH')
@@ -79,6 +93,15 @@ sub import
           }
           $self->ua->cookie_jar;
         };
+        
+        foreach my $name (@missing)
+        {
+          no strict 'refs';
+          *{$name} = sub {
+            Carp::carp "attribute: $name is not supported";
+            undef;
+          };
+        }
       }
     }
     else
