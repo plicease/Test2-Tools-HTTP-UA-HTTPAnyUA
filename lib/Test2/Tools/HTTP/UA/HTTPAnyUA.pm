@@ -32,6 +32,14 @@ use parent 'Test2::Tools::HTTP::UA';
 This module is a user agent wrapper for L<Test2::Tools::HTTP> that allows you
 to use L<HTTP::AnyUA> as a user agent for testing.
 
+=head1 CAVEATS
+
+The underlying user agent used by the L<HTTP::AnyUA> must be supported by
+an installed L<Test2::Tools::HTTP> wrapper.  Since that module comes with a wrapper
+that works with L<LWP::UserAgent> that should always work.  If you have the Mojo
+user agent wrapper installed you can also use L<Mojo::UserAgent>.  As of this
+writing there are no others that are supported.
+
 =cut
 
 sub new
