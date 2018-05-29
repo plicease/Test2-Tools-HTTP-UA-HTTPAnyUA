@@ -191,13 +191,13 @@ subtest 'prxoy' => sub {
     is( $http->http_proxy, 'http://localhost:6626' );
     is( $http->https_proxy, 'http://localhost:6626' );
 
-    my $http = HTTP::Tiny->new( proxy => 'http://localhost:4544' );;
+    $http = HTTP::Tiny->new( proxy => 'http://localhost:4544' );;
     is( $http->http_proxy, 'http://localhost:4544' );
     is( $http->https_proxy, 'http://localhost:4544' );
     
     delete $ENV{all_proxy};
 
-    my $http = HTTP::Tiny->new;
+    $http = HTTP::Tiny->new;
     is( $http->http_proxy, undef );
     is( $http->https_proxy, undef );
   

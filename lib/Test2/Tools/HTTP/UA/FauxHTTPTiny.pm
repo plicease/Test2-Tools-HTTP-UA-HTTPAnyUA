@@ -73,7 +73,6 @@ sub import
           local_address
           keep_alive
           max_size
-          timeout
           verify_SSL
           SSL_options
         );
@@ -123,6 +122,11 @@ sub import
           if(my $proxy = delete $attr{proxy} || $ENV{all_proxy})
           {
             $self->proxy($proxy);
+          }
+          
+          if(my $timeout = delete $attr{timeout} || 60)
+          {
+            $self->timeout($timeout);
           }
           
           Carp::carp "attribute: $_ is not supported" for sort keys %attr;
@@ -185,6 +189,12 @@ sub import
               if defined $new;
           }
           $self->{faux_no_proxy};
+        };
+        
+        *timeout = sub {
+          my($self, $new) = @_;
+          $self->ua->timeout($new) if defined $new;
+          $self->ua->timeout;
         };
         
         foreach my $name (@missing)
