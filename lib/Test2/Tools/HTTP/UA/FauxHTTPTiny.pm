@@ -69,7 +69,6 @@ sub import
           HTTP::Tiny;
 
         my @missing = qw(
-          default_headers
           local_address
           keep_alive
           max_size
@@ -97,6 +96,11 @@ sub import
           if(my $cookie_jar = delete $attr{cookie_jar})
           {
             $self->ua->cookie_jar($cookie_jar);
+          }
+          
+          if(my $default_headers = delete $attr{default_headers} || {})
+          {
+            $self->default_headers($default_headers);
           }
           
           if(my $max_redirect = delete $attr{max_redirect} || 5)
@@ -139,7 +143,7 @@ sub import
           $self->ua->agent($new) if defined $new;
           $self->ua->agent;
         };
-        
+
         *cookie_jar = sub {
           my($self, $new) = @_;
           if(defined $new)
@@ -154,6 +158,24 @@ sub import
             }
           }
           $self->ua->cookie_jar;
+        };
+        
+        *default_headers = sub {
+          my($self, $new) = @_;
+          if($new)
+          {
+            require HTTP::Headers;
+            my $headers = HTTP::Headers->new;
+            foreach my $key (keys %$new)
+            {
+              $headers->header($key => $new->{$key});
+            }
+            $headers->header('User-Agent' => $self->ua->agent);
+            tie my %headers, 'Test2::Tools::HTTP::UA::FauxHTTPTiny::Headers', $headers;
+            $self->{faux_default_headers} = \%headers;
+            $self->ua->default_headers($headers);
+          }
+          $self->{faux_default_headers};
         };
         
         *max_redirect = sub {
@@ -212,6 +234,57 @@ sub import
       Carp::croak "Unknown mode: $arg";
     }
   }
+}
+
+package Test2::Tools::HTTP::UA::FauxHTTPTiny::Headers;
+
+sub TIEHASH
+{
+  my($class, $headers) = @_;
+  bless [$headers], $class;
+}
+
+sub FETCH
+{
+  my($self, $key) = @_;
+  $self->[0]->header($key);
+}
+
+sub STORE
+{
+  my($self, $key, $val) = @_;
+  $self->[0]->header($key => $val);
+}
+
+sub DELETE
+{
+  my($self, $key) = @_;
+  $self->[0]->remove_header($key);
+}
+
+sub CLEAR
+{
+  my($self) = @_;
+  $self->[0]->clear;
+}
+
+sub EXISTS
+{
+  !!FETCH(@_);
+}
+
+sub FIRST
+{
+  my($self) = @_;
+  my %h = $self->[0]->flatten;
+  $self->[1] = [keys %h];
+  NEXTKEY($self);
+}
+
+sub NEXTKEY
+{
+  my($self) = @_;
+  shift @{ $self->[1] };
 }
 
 1;

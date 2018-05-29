@@ -116,6 +116,35 @@ subtest 'cookie_jar' => sub {
 
 };
 
+subtest 'default_headers' => sub {
+
+  my $http = HTTP::Tiny->new;
+
+  my $wrapper = Test2::Tools::HTTP::UA->new($http->ua);
+  $wrapper->instrument;
+
+  $http->default_headers->{'X-Foo'} = 'Bar';
+
+  is(
+    $http->get('http://fred.test'),
+    hash {
+      field success => T();
+      etc;
+    },
+    'response',
+  );
+  
+  is(
+    $env,
+    hash {
+      field HTTP_X_FOO => 'Bar';
+      etc;
+    },
+    'env',
+  );
+
+};
+
 subtest 'max_redirect' => sub {
 
   my $http = HTTP::Tiny->new;
