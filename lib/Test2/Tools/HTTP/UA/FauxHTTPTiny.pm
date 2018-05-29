@@ -42,6 +42,11 @@ specifically opt-in by using this module with the C<:faux> tag.  You
 also need to use it before any code that might use the real L<HTTP::Tiny>
 first.
 
+=head1 CAVEATS
+
+In broad strokes this faux L<HTTP::Tiny> works similar to the real thing.
+In some of the details it almost certainly is different.
+
 =cut
 
 sub import
@@ -68,10 +73,6 @@ sub import
           local_address
           keep_alive
           max_size
-          http_proxy
-          https_proxy
-          proxy
-          no_proxy
           timeout
           verify_SSL
           SSL_options
@@ -102,6 +103,26 @@ sub import
           if(my $max_redirect = delete $attr{max_redirect} || 5)
           {
             $self->ua->max_redirect($max_redirect);
+          }
+          
+          if(my $no_proxy = delete $attr{no_proxy} || $ENV{no_proxy})
+          {
+            $self->no_proxy($no_proxy);
+          }
+          
+          if(my $http_proxy = delete $attr{http_proxy} || $ENV{http_proxy})
+          {
+            $self->http_proxy($http_proxy);
+          }
+
+          if(my $https_proxy = delete $attr{https_proxy} || $ENV{https_proxy})
+          {
+            $self->https_proxy($https_proxy);
+          }
+          
+          if(my $proxy = delete $attr{proxy} || $ENV{all_proxy})
+          {
+            $self->proxy($proxy);
           }
           
           Carp::carp "attribute: $_ is not supported" for sort keys %attr;
@@ -135,6 +156,35 @@ sub import
           my($self, $new) = @_;
           $self->ua->max_redirect($new) if defined $new;
           $self->ua->max_redirect;
+        };
+
+        *http_proxy = sub {
+          my($self, $new) = @_;
+          $self->ua->proxy(http => $new) if defined $new;
+          $self->ua->proxy('http');
+        };
+
+        *https_proxy = sub {
+          my($self, $new) = @_;
+          $self->ua->proxy(https => $new) if defined $new;
+          $self->ua->proxy('https');
+        };
+        
+        *proxy = sub {
+          my($self, $new) = @_;
+          $self->ua->proxy( ['http','https'] => $new) if defined $new;
+          return;
+        };
+        
+        *no_proxy = sub {
+          my($self, $new) = @_;
+          if($new)
+          {
+            $self->{faux_no_proxy} = $new;
+            $self->ua->no_proxy(ref $new ? @$new : split /,/, $new)
+              if defined $new;
+          }
+          $self->{faux_no_proxy};
         };
         
         foreach my $name (@missing)

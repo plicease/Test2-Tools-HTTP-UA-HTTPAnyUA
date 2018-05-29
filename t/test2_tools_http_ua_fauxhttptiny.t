@@ -135,6 +135,108 @@ subtest 'max_redirect' => sub {
 
 };
 
+subtest 'prxoy' => sub {
+
+  local $ENV{http_proxy} = '';
+  local $ENV{https_proxy} = '';
+  local $ENV{any_proxy} = '';
+  
+  delete $ENV{$_} for qw( http_proxy https_proxy any_proxy );
+
+  subtest 'http_proxy' => sub {
+
+    local $ENV{http_proxy} = 'http://localhost:3128';
+  
+    my $http = HTTP::Tiny->new;
+    is( $http->http_proxy, 'http://localhost:3128');
+
+    $http = HTTP::Tiny->new(http_proxy => 'http://localhost:5555');
+    is( $http->http_proxy, 'http://localhost:5555');
+    
+    delete $ENV{http_proxy};
+    
+    $http = HTTP::Tiny->new;
+    is( $http->http_proxy, undef);
+
+    $http = HTTP::Tiny->new(http_proxy => 'http://localhost:5551');
+    is( $http->http_proxy, 'http://localhost:5551');
+  
+  };
+
+  subtest 'https_proxy' => sub {
+
+    local $ENV{https_proxy} = 'https://localhost:3128';
+  
+    my $https = HTTP::Tiny->new;
+    is( $https->https_proxy, 'https://localhost:3128');
+
+    $https = HTTP::Tiny->new(https_proxy => 'https://localhost:5555');
+    is( $https->https_proxy, 'https://localhost:5555');
+    
+    delete $ENV{https_proxy};
+    
+    $https = HTTP::Tiny->new;
+    is( $https->https_proxy, undef);
+
+    $https = HTTP::Tiny->new(https_proxy => 'https://localhost:5551');
+    is( $https->https_proxy, 'https://localhost:5551');
+  
+  };
+  
+  subtest 'proxy' => sub {
+  
+    local $ENV{all_proxy} = 'http://localhost:6626';
+
+    my $http = HTTP::Tiny->new;
+    is( $http->http_proxy, 'http://localhost:6626' );
+    is( $http->https_proxy, 'http://localhost:6626' );
+
+    my $http = HTTP::Tiny->new( proxy => 'http://localhost:4544' );;
+    is( $http->http_proxy, 'http://localhost:4544' );
+    is( $http->https_proxy, 'http://localhost:4544' );
+    
+    delete $ENV{all_proxy};
+
+    my $http = HTTP::Tiny->new;
+    is( $http->http_proxy, undef );
+    is( $http->https_proxy, undef );
+  
+  };
+
+  subtest 'no_proxy' => sub {
+  
+    local $ENV{no_proxy} = 'foo.test,bar.test';
+  
+    my $http = HTTP::Tiny->new;
+    
+    is( $http->no_proxy, 'foo.test,bar.test' );
+    
+    delete $ENV{no_proxy};
+
+    $http = HTTP::Tiny->new;
+    
+    is( $http->no_proxy, undef );
+
+    $http = HTTP::Tiny->new( no_proxy => [ qw( foo.test bar.test ) ]);
+
+    is( $http->no_proxy, [ qw( foo.test bar.test ) ] );
+
+    $http = HTTP::Tiny->new( no_proxy => 'foo.test,bar.test');
+
+    is( $http->no_proxy, 'foo.test,bar.test');
+
+    $http->no_proxy('baz.test,gag.test');
+
+    is( $http->no_proxy, 'baz.test,gag.test' );
+
+    $http->no_proxy( [ qw( baz.test gag.test ) ] );
+
+    is( $http->no_proxy, [ qw( baz.test gag.test ) ] );
+
+  };
+
+};
+
 subtest 'works with Test2::Tools::HTTP' => sub {
 
   my $http = HTTP::Tiny->new;
