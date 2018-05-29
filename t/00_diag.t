@@ -14,6 +14,7 @@ $modules{$_} = $_ for qw(
   ExtUtils::MakeMaker
   HTTP::AnyUA
   HTTP::Cookies
+  HTTP::Request::Common
   LWP::UserAgent
   Test2::Tools::HTTP
   Test2::Tools::HTTP::UA

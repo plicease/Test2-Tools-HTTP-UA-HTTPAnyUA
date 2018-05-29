@@ -8,6 +8,32 @@ use parent 'Test2::Tools::HTTP::UA';
 # ABSTRACT: HTTP::AnyUA user agent wrapper for Test2::Tools::HTTP
 # VERSION
 
+=head1 SYNOPSIS
+
+ use Test2::Tools::HTTP;
+ use HTTP::AnyUA;
+ use LWP::UserAgent;
+ 
+ http_ua( HTTP::AnyUA->new(LWP::UserAgent->new) )
+ 
+ http_request(
+   GET('http://example.test'),
+   http_response {
+     http_code 200;
+     http_response match qr/something/;
+     ...
+   }
+ );;
+ 
+ done_testing;
+
+=head1 DESCRIPTION
+
+This module is a user agent wrapper for L<Test2::Tools::HTTP> that allows you
+to use L<HTTP::AnyUA> as a user agent for testing.
+
+=cut
+
 sub new
 {
   my($class, $ua) = @_;
@@ -36,3 +62,17 @@ sub request
 __PACKAGE__->register('HTTP::AnyUA', 'instance');
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Test2::Tools::HTTP>
+
+=item L<Test2::Tools::HTTP::UA::FauxHTTPTiny>
+
+=item L<HTTP::AnyUA>
+
+=back
+
+=cut

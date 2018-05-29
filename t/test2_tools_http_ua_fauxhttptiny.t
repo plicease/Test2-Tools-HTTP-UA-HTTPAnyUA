@@ -1,7 +1,8 @@
 use Test2::V0 -no_srand => 1;
 use Test2::Tools::HTTP::UA::FauxHTTPTiny qw( :faux );
 use Test2::Tools::HTTP::UA;
-use Test2::Tools::HTTP qw( psgi_app_add );
+use Test2::Tools::HTTP;
+use HTTP::Request::Common;
 use HTTP::Cookies;
 
 my $env;
@@ -132,6 +133,30 @@ subtest 'max_redirect' => sub {
   is($http->max_redirect, 8);
   is($http->ua->max_redirect, 8);
 
+};
+
+subtest 'works with Test2::Tools::HTTP' => sub {
+
+  my $http = HTTP::Tiny->new;
+  http_ua $http;
+  
+  http_request
+    GET('http://fred.test'),
+    http_response {
+      http_code         200;
+      http_message      'OK';
+      http_content      "Autobots\n";
+      http_content_type 'text/plain';
+    };
+
+  is(
+    $env,
+    hash {
+      field HTTP_USER_AGENT => 'HTTP-Tiny/0.070';
+      etc;
+    },
+    'env',
+  );
 };
 
 done_testing

@@ -9,6 +9,41 @@ use parent 'Test2::Tools::HTTP::UA::HTTPAnyUA';
 # ABSTRACT: HTTP::AnyUA user agent wrapper for Test2::Tools::HTTP
 # VERSION
 
+=head1 SYNOPSIS
+
+ use Test2::Tools::HTTP::UA::FauxHTTPTiny qw( :faux );
+ use HTTP::Tiny;
+ 
+ # This is actually a HTTP::AnyUA pretending
+ # to be a HTTP::Tiny
+ my $http = HTTP::Tiny->new;
+ my $res = $http->get("http://www.google.com");
+ 
+ use Test2::Tools::HTTP;
+ 
+ # Test2::Tools::HTTP doesn't work with a real HTTP::Tiny
+ # but it can work with this faux HTTP::Tiny.
+ http_ua($http);
+
+=head1 DESCRIPTION
+
+L<HTTP::Tiny> is pretty good for a number of reasons.  It is small, it is
+bundled with modern versions of Perl and its implementation is correct.
+One area that I find that it falls down though is testing.  It is impossible
+to mock at the connection level without mucking with its internal privates.
+So probably if you like to write tests without having to spin up a real HTTP
+server for L<HTTP::Tiny> to talk to, then I recommend using something else,
+like L<LWP::UserAgent> which is easy to mock.  This module provides a faux
+L<HTTP::Tiny> that uses L<LWP::UserAgent> under the covers (via L<HTTP::AnyUA>)
+for situations when you can't not use L<HTTP::Tiny>.  As the name might 
+suggest, this class is designed to work with L<Test2::Tool::HTTP>.  Because
+this overrides the L<HTTP::Tiny> that comes with your Perl, you need to
+specifically opt-in by using this module with the C<:faux> tag.  You
+also need to use it before any code that might use the real L<HTTP::Tiny>
+first.
+
+=cut
+
 sub import
 {
   my $class = shift;
@@ -120,3 +155,15 @@ sub import
 }
 
 1;
+
+=head1 SEE ALSO
+
+=over 4
+
+=item L<Test2::Tool::HTTP>
+
+=item L<Test2::Tool::HTTP::UA::HTTPAnyUA>
+
+=back
+
+=cut

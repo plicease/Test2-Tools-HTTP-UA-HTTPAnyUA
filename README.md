@@ -2,6 +2,36 @@
 
 HTTP::AnyUA user agent wrapper for Test2::Tools::HTTP
 
+# SYNOPSIS
+
+    use Test2::Tools::HTTP;
+    use HTTP::AnyUA;
+    use LWP::UserAgent;
+    
+    http_ua( HTTP::AnyUA->new(LWP::UserAgent->new) )
+    
+    http_request(
+      GET('http://example.test'),
+      http_response {
+        http_code 200;
+        http_response match qr/something/;
+        ...
+      }
+    );;
+    
+    done_testing;
+
+# DESCRIPTION
+
+This module is a user agent wrapper for [Test2::Tools::HTTP](https://metacpan.org/pod/Test2::Tools::HTTP) that allows you
+to use [HTTP::AnyUA](https://metacpan.org/pod/HTTP::AnyUA) as a user agent for testing.
+
+# SEE ALSO
+
+- [Test2::Tools::HTTP](https://metacpan.org/pod/Test2::Tools::HTTP)
+- [Test2::Tools::HTTP::UA::FauxHTTPTiny](https://metacpan.org/pod/Test2::Tools::HTTP::UA::FauxHTTPTiny)
+- [HTTP::AnyUA](https://metacpan.org/pod/HTTP::AnyUA)
+
 # AUTHOR
 
 Graham Ollis <plicease@cpan.org>
